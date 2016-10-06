@@ -6,7 +6,9 @@ microgear-csharp คือ client library ภาษา C#  ที่ทำหน
 
 ##การติดตั้ง
 -----------
-
+```sh
+Install-Package Microgear
+```
 
 
 ##ตัวอย่างการเรียกใช้งาน
