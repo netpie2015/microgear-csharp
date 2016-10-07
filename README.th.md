@@ -14,6 +14,7 @@ Install-Package Microgear
 ##ตัวอย่างการเรียกใช้งาน
 -----------
 ```C#
+using System.Threading;
 using io.netpie.microgear;
 
 namespace ConsoleApplication1
@@ -37,7 +38,8 @@ namespace ConsoleApplication1
             microgear.Subscribe("/topic");
             for (int i = 0; i < 10; i++)
             {
-                microgear.Publish("test", "test message no."+i.ToString());
+                microgear.Chat("test", "test message no."+i.ToString());
+                Thread.Sleep(2000);
             }
         }
 
