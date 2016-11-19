@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using System.Collections.Generic;
@@ -8,16 +7,13 @@ using Newtonsoft.Json;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
 using RestSharp;
-using System.Collections.Specialized;
-using RestSharp.Authenticators;
-using System.Web;
 using System.Net;
 
 namespace io.netpie.microgear
 {
     public static class init
     {
-        public static string gearauthsite = "http://ga.netpie.io:8080";
+        public static string gearauthsite = "https://ga.netpie.io:8081";
         public static string requesttokenendpoint = "api/rtoken";
         public static string accesstokenendpoint = "api/atoken";
         public static string gearkey = "";
@@ -75,8 +71,8 @@ namespace io.netpie.microgear
         private List<string> subscribe_list = new List<string>();
         private List<List<string>> pubilsh_list = new List<List<string>>();
         public Action onDisconnect;
-        public Action <string> onPresent;
-        public Action <string> onAbsent;
+        public Action<string> onPresent;
+        public Action<string> onAbsent;
         public Action onConnect;
         public Action<string> onError;
         public Action<string, string> onMessage;
@@ -84,9 +80,9 @@ namespace io.netpie.microgear
         private String current_id;
         private int status = 0;
 
-        private void do_nothing(){}
-        private void do_nothing(string i){}
-        private void do_nothing(string i, string j){}
+        private void do_nothing() { }
+        private void do_nothing(string i) { }
+        private void do_nothing(string i, string j) { }
 
         public Microgear()
         {
@@ -110,7 +106,7 @@ namespace io.netpie.microgear
             if (reset)
             {
                 this.ResetToken();
-                
+
             }
             this.Create();
         }
@@ -119,7 +115,7 @@ namespace io.netpie.microgear
             this.Connect(appid, gearkey, gearsecret);
             this.SetAlias(alias);
         }
-        
+
         public void Create()
         {
             this.aTimer = new System.Timers.Timer();
@@ -134,27 +130,32 @@ namespace io.netpie.microgear
             Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
             string username = init.gearkey + "%" + unixTimestamp;
             string pass = CreateToken(init.accesssecret + "&" + init.gearsecret, init.accesstoken + "%" + username);
-            var status_code  = this.mqtt_client.Connect(init.accesstoken, username, pass);
+            var status_code = this.mqtt_client.Connect(init.accesstoken, username, pass);
             this.mqtt_client.MqttMsgPublishReceived += HandleClientMqttMsgPublishReceived;
             this.mqtt_client.MqttMsgPublished += MqttMsgPublished;
             this.mqtt_client.ConnectionClosed += ConnectionClosedEventHandler;
             this.mqtt_client.MqttMsgSubscribed += MqttMsgSubscribed;
-            
-            if (status_code == 0){
+
+            if (status_code == 0)
+            {
                 this.status = 1;
                 this.onConnect();
                 AutoSubscribeAndPublish();
             }
-            else if(status_code == 1){
+            else if (status_code == 1)
+            {
                 Console.WriteLine("Unable to connect: Incorrect protocol version.");
             }
-            else if (status_code == 2){
+            else if (status_code == 2)
+            {
                 Console.WriteLine("Unable to connect: Invalid client identifier.");
             }
-            else if (status_code == 3){
+            else if (status_code == 3)
+            {
                 Console.WriteLine("Unable to connect: Server unavailable.");
             }
-            else if (status_code == 4){
+            else if (status_code == 4)
+            {
                 this.Unsubscribe(current_id);
                 Console.WriteLine("Unable to connect: Invalid credential, requesting new one");
                 this.Disconnect();
@@ -162,12 +163,14 @@ namespace io.netpie.microgear
                 this.ResetToken();
                 this.Create();
             }
-            else if (status_code == 5){
+            else if (status_code == 5)
+            {
                 Console.WriteLine("Unable to connect: Not authorised.");
                 this.Create();
                 aTimer.Interval = 2000;
             }
-            else{
+            else
+            {
                 Console.WriteLine("Unable to connect: Unknown reason");
             }
         }
@@ -182,7 +185,7 @@ namespace io.netpie.microgear
             }
             foreach (List<string> pubilsh in this.pubilsh_list)
             {
-                if (pubilsh.Count>2)
+                if (pubilsh.Count > 2)
                 {
                     this.Publish(pubilsh[0], pubilsh[1], Convert.ToBoolean(pubilsh[2]));
                 }
@@ -190,14 +193,15 @@ namespace io.netpie.microgear
                 {
                     this.Publish(pubilsh[0], pubilsh[1]);
                 }
-                
+
             }
             this.subscribe_list = new List<string>();
             this.pubilsh_list = new List<List<string>>();
         }
 
 
-        public  void ConnectionClosedEventHandler(object sender, EventArgs e){
+        public void ConnectionClosedEventHandler(object sender, EventArgs e)
+        {
             if (status == 2)
             {
                 this.onDisconnect();
@@ -206,7 +210,7 @@ namespace io.netpie.microgear
             {
                 this.Create();
             }
-            
+
         }
 
 
@@ -218,7 +222,7 @@ namespace io.netpie.microgear
         private void HandleClientMqttMsgPublishReceived(object sender, uPLibrary.Networking.M2Mqtt.Messages.MqttMsgPublishEventArgs e)
         {
             var topic = e.Topic.Split('/');
-            if (topic[2]== "&present")
+            if (topic[2] == "&present")
             {
                 this.onPresent(Encoding.UTF8.GetString(e.Message));
             }
@@ -226,14 +230,15 @@ namespace io.netpie.microgear
             {
                 this.onAbsent(Encoding.UTF8.GetString(e.Message));
             }
-            else if (topic[2].IndexOf("&id")>=0 ){
+            else if (topic[2].IndexOf("&id") >= 0)
+            {
                 //pass
             }
             else
             {
                 this.onMessage(e.Topic, Encoding.UTF8.GetString(e.Message));
             }
-            
+
         }
 
         private void MqttMsgSubscribed(object sender, uPLibrary.Networking.M2Mqtt.Messages.MqttMsgSubscribedEventArgs e)
@@ -269,8 +274,8 @@ namespace io.netpie.microgear
 
         public void Subscribe(string topic)
         {
-            
-            if(topic.Substring(0, 1) != "/")
+
+            if (topic.Substring(0, 1) != "/")
             {
                 topic = "/" + topic;
             }
@@ -287,11 +292,11 @@ namespace io.netpie.microgear
                     this.subscribe_list.Add(topic);
                 }
             }
-            
+
 
         }
 
-        public void Publish(string topic, string message,bool retained)
+        public void Publish(string topic, string message, bool retained)
         {
             if (topic.Substring(0, 1) != "/")
             {
@@ -343,11 +348,11 @@ namespace io.netpie.microgear
             if (reset)
             {
                 reset = false;
-                var cached = this.cache.get_item("microgear-"+init.gearkey+".cache");
+                var cached = this.cache.get_item("microgear-" + init.gearkey + ".cache");
                 if (cached == null)
                 {
-                    this.cache.set_item(null, "microgear-"+init.gearkey+".cache");
-                    cached = this.cache.get_item("microgear-"+init.gearkey+".cache");
+                    this.cache.set_item(null, "microgear-" + init.gearkey + ".cache");
+                    cached = this.cache.get_item("microgear-" + init.gearkey + ".cache");
                 }
                 if (cached.accesstoken != null)
                 {
@@ -362,7 +367,7 @@ namespace io.netpie.microgear
                         int numericStatusCode = (int)statusCode;
                         if (numericStatusCode == 200)
                         {
-                            File.Delete("microgear-"+init.gearkey+".cache");
+                            File.Delete("microgear-" + init.gearkey + ".cache");
                             init.accesstoken = null;
                         }
                     }
@@ -371,14 +376,14 @@ namespace io.netpie.microgear
             else
             {
                 reset = true;
-            }  
+            }
         }
 
 
         public void SetAlias(string alias)
         {
             init.gearalias = alias;
-            this.Publish("/@setalias/" + alias,"");
+            this.Publish("/@setalias/" + alias, "");
         }
 
         public void Chat(string topic, string message)
@@ -388,11 +393,11 @@ namespace io.netpie.microgear
 
         private void get_token()
         {
-            var cached = this.cache.get_item("microgear-"+init.gearkey+".cache");
+            var cached = this.cache.get_item("microgear-" + init.gearkey + ".cache");
             if (cached == null)
             {
-                this.cache.set_item(null, "microgear-"+init.gearkey+".cache");
-                cached = this.cache.get_item("microgear-"+init.gearkey+".cache");
+                this.cache.set_item(null, "microgear-" + init.gearkey + ".cache");
+                cached = this.cache.get_item("microgear-" + init.gearkey + ".cache");
             }
             if (cached.accesstoken != null)
             {
@@ -412,60 +417,61 @@ namespace io.netpie.microgear
         private void forToken()
         {
             var verifier = "";
+            var path = "";
             if (init.gearalias != null)
             {
                 verifier = init.gearalias;
+                path = "?response_type=code&client_id=" + init.gearkey + "&scope=appid:" + init.appid + "%20alias:" + init.gearalias + "&state=mgrev:" + init.mgrev;
+
             }
             else
             {
                 verifier = init.mgrev;
+                path = "response_type=code&client_id=" + init.gearkey + "&scope=appid:" + init.appid + "&state=mgrev:" + init.mgrev;
+
             }
-            Uri baseUrl = new Uri(init.gearauthsite);
-            RestClient client = new RestClient(baseUrl.AbsoluteUri)
+            var client = new RestClient(init.gearauthsite + "/oauth2/authorize?" + path);
+            var request = new RestRequest(Method.GET);
+            var response = client.Execute(request);
+            string responsecode = response.ResponseUri.ToString();
+            string[] responsecodelist = responsecode.Replace("code=", "|").Split('|');
+            if (responsecodelist.Length==2)
             {
-                Authenticator = OAuth1Authenticator.ForRequestToken(init.gearkey, init.gearsecret)
-            };
-            RestRequest request = new RestRequest(init.requesttokenendpoint, Method.POST);
-            request.AddParameter("oauth_callback", "scope=" + init.scope + "&mgrev=" + init.mgrev + "&appid=" + init.appid + "&verifier=" + verifier);
-            Int32 unixTimestamp = (Int32)(DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalSeconds;
-            IRestResponse response = client.Execute(request);
-            HttpStatusCode statusCode = response.StatusCode;
-            int numericStatusCode = (int)statusCode;
-            if (numericStatusCode == 200)
-            {
-                NameValueCollection qs = HttpUtility.ParseQueryString(response.Content);
-                string oauthToken = qs["oauth_token"];
-                string oauthTokenSecret = qs["oauth_token_secret"];
+                var code = responsecodelist[1];
+                string oauthToken = code;
+                string oauthTokenSecret = "null";
                 this.requesttoken.token = oauthToken;
                 this.requesttoken.secret = oauthTokenSecret;
                 this.requesttoken.verifier = verifier;
                 this.tokencache.requesttoken = this.requesttoken;
-                string url = client.BuildUri(request).ToString();
-                request = new RestRequest(init.accesstokenendpoint, Method.POST);
-                request.RequestFormat = DataFormat.Json;
-                client.Authenticator = OAuth1Authenticator.ForAccessToken(init.gearkey, init.gearsecret, oauthToken,
-                    oauthTokenSecret);
-                request.AddParameter("oauth_verifier", verifier);
+                path = "grant_type=authorization_code&code="+ code + "&client_id="+init.gearkey+ "&client_secret="+init.gearsecret+"&state=mgrev:"+init.mgrev;
+                client = new RestClient(init.gearauthsite + "/oauth2/token?" + path);
+                request = new RestRequest(Method.POST);
                 response = client.Execute(request);
-                statusCode = response.StatusCode;
-                numericStatusCode = (int)statusCode;
-                if (numericStatusCode == 200)
+                string responsetoken = response.Content;
+                string[] responsetokenlist = responsetoken.Replace("{\"access_token\":\"", "|").Split('|');
+                if (responsetokenlist.Length == 2)
                 {
-                    qs = HttpUtility.ParseQueryString(response.Content);
-                    oauthToken = qs["oauth_token"];
-                    oauthTokenSecret = qs["oauth_token_secret"];
-                    string endpoint = qs["endpoint"];
-                    string revokecode = CreateToken(oauthTokenSecret + "&" + init.gearsecret, oauthToken);
-                    revokecode = revokecode.Replace('/', '_');
-                    url = client.BuildUri(request).ToString();
-                    this.accesstoken.token = oauthToken;
-                    this.accesstoken.secret = oauthTokenSecret;
-                    this.accesstoken.endpoint = endpoint;
-                    this.accesstoken.revokecode = revokecode;
-                    this.tokencache.accesstoken = this.accesstoken;
-                    this.tokencache.key = init.gearkey;
-                    this.token._ = this.tokencache;
-                    this.cache.set_item(this.token, "microgear-"+init.gearkey+".cache");
+                    responsetokenlist = responsetokenlist[1].Replace("\",\"token_type\"", "|").Split('|');
+                    if (responsetokenlist.Length == 2)
+                    {
+                        responsetokenlist = responsetokenlist[0].Replace(":", "|").Split('|');
+                        oauthToken = responsetokenlist[0];
+                        oauthTokenSecret = responsetokenlist[1];
+                        responsetokenlist = responsetoken.Replace("\"endpoint\":\"", "|").Split('|');
+                        responsetokenlist = responsetokenlist[1].Replace("\"}", "|").Split('|');
+                        string endpoint = responsetokenlist[0];
+                        string revokecode = CreateToken(oauthTokenSecret + "&" + init.gearsecret, oauthToken);
+                        revokecode = revokecode.Replace('/', '_');
+                        this.accesstoken.token = oauthToken;
+                        this.accesstoken.secret = oauthTokenSecret;
+                        this.accesstoken.endpoint = endpoint;
+                        this.accesstoken.revokecode = revokecode;
+                        this.tokencache.accesstoken = this.accesstoken;
+                        this.tokencache.key = init.gearkey;
+                        this.token._ = this.tokencache;
+                        this.cache.set_item(this.token, "microgear-"+init.gearkey+".cache");
+                    }
                 }
                 else
                 {
@@ -478,8 +484,6 @@ namespace io.netpie.microgear
             {
                 this.onError("Request token is not issued, please check your appkey and appsecret.");
             }
-
-            
         }
 
         private string CreateToken(string secret, string message)
