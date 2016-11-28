@@ -33,6 +33,7 @@ namespace ConsoleApplication1
             microgear.onAbsent += Absent;
             microgear.onPresent += Present;
             microgear.onError += Error;
+            microgear.onInfo += Info;
             microgear.Connect(AppID, Key, Secret);
             microgear.SetAlias("test");
             microgear.Subscribe("/topic");
@@ -66,6 +67,11 @@ namespace ConsoleApplication1
         public static void Error(string error)
         {
             Console.WriteLine(error);
+        }
+
+        public static void Info(string info)
+        {
+            Console.WriteLine(info);
         }
     }
 }
