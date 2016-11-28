@@ -134,6 +134,17 @@ argument
 
 <br/>
 
+**wrtieFeed(Feedid, Data, Apikey):** เขียนข้อมูลลง feed storage
+
+arguments
+
+* *Feedid* `string` - ชื่อของ feed ที่ต้องการจะเขียนข้อมูล
+* *Data* `jsonobject` – ข้อมูลที่จะบันทึก ในรูปแบบ JSONObject
+* *Apikey* `string` - apikey สำหรับตรวจสอบสิทธิ์ หากไม่กำหนด จะใช้ default apikey ของ feed ที่ให้สิทธิ์ไว้กับ AppID
+
+<br/>
+
+
 
 
 ###Event
@@ -203,6 +214,17 @@ application ที่รันบน microgear จะมีการทำงา
 
 * *callback* `function` - จะทำงานเมื่อเกิดเหตุการณ์นี้ โดยจะรับค่า parameter คือ
     * *msg* - ระบุ error ที่เกี่ยวข้องกับเหตุการณ์นี้
+
+
+<br/>
+
+**onInfo** event นี้จะเกิดขึ้นเมื่อมี Info
+
+ค่าที่ set
+
+
+* *callback* `function` - จะทำงานเมื่อเกิดเหตุการณ์นี้ โดยจะรับค่า parameter คือ
+    * *msg* - ระบุ info ที่เกี่ยวข้องกับเหตุการณ์นี้
 
 
 <br/>

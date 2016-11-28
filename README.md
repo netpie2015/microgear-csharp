@@ -141,7 +141,15 @@ argument
 
 <br/>
 
+**wrtieFeed(Feedid, Data, Apikey):** write time series data to a feed storage
 
+arguments
+
+* *Feedid* `string` - name of the feed
+* *Data* `string` – data string
+* *Apikey* `string` - apikey for authorization. If apikey is not specified, you will need to allow the AppID to access feed and then the default apikey will be assigned automatically.
+
+<br/>
 
 ###Event
 ---------------
@@ -218,6 +226,17 @@ Parameter set
 
 * *callback* `function` - A function to executed after this event. It takes 1 argument.
     * *msg* - An error message related to this event.
+
+
+<br/>
+
+**onInfo** This event is created when an info occurs within a microgear
+
+ค่าที่ set
+
+
+* *callback* `function` - A function to executed after this event. It takes 1 argument.
+    * *msg* - An info message related to this event
 
 
 <br/>

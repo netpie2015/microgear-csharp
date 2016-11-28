@@ -75,6 +75,7 @@ namespace io.netpie.microgear
         public Action<string> onAbsent;
         public Action onConnect;
         public Action<string> onError;
+        public Action<string> onInfo;
         public Action<string, string> onMessage;
         private bool reset = false;
         private String current_id;
@@ -89,6 +90,7 @@ namespace io.netpie.microgear
             this.onDisconnect = do_nothing;
             this.onPresent = do_nothing;
             this.onAbsent = do_nothing;
+            this.onInfo = do_nothing;
             this.onConnect = do_nothing;
             this.onMessage = do_nothing;
             this.onError = do_nothing;
@@ -222,17 +224,25 @@ namespace io.netpie.microgear
         private void HandleClientMqttMsgPublishReceived(object sender, uPLibrary.Networking.M2Mqtt.Messages.MqttMsgPublishEventArgs e)
         {
             var topic = e.Topic.Split('/');
-            if (topic[2] == "&present")
+            if (e.Topic.IndexOf("&present") >= 0)
             {
                 this.onPresent(Encoding.UTF8.GetString(e.Message));
             }
-            else if (topic[2] == "&absent")
+            else if (e.Topic.IndexOf("&absent") >= 0)
             {
                 this.onAbsent(Encoding.UTF8.GetString(e.Message));
             }
-            else if (topic[2].IndexOf("&id") >= 0)
+            else if (e.Topic.IndexOf("&id") >= 0)
             {
                 //pass
+            }
+            else if (e.Topic.IndexOf("@info") >= 0)
+            {
+                this.onInfo(Encoding.UTF8.GetString(e.Message));
+            }
+            else if (e.Topic.IndexOf("&error") >= 0)
+            {
+                this.onError(Encoding.UTF8.GetString(e.Message));
             }
             else
             {
@@ -435,7 +445,7 @@ namespace io.netpie.microgear
             var response = client.Execute(request);
             string responsecode = response.ResponseUri.ToString();
             string[] responsecodelist = responsecode.Replace("code=", "|").Split('|');
-            if (responsecodelist.Length==2)
+            if (responsecodelist.Length == 2)
             {
                 var code = responsecodelist[1];
                 string oauthToken = code;
@@ -444,7 +454,7 @@ namespace io.netpie.microgear
                 this.requesttoken.secret = oauthTokenSecret;
                 this.requesttoken.verifier = verifier;
                 this.tokencache.requesttoken = this.requesttoken;
-                path = "grant_type=authorization_code&code="+ code + "&client_id="+init.gearkey+ "&client_secret="+init.gearsecret+"&state=mgrev:"+init.mgrev;
+                path = "grant_type=authorization_code&code=" + code + "&client_id=" + init.gearkey + "&client_secret=" + init.gearsecret + "&state=mgrev:" + init.mgrev;
                 client = new RestClient(init.gearauthsite + "/oauth2/token?" + path);
                 request = new RestRequest(Method.POST);
                 response = client.Execute(request);
@@ -470,7 +480,7 @@ namespace io.netpie.microgear
                         this.tokencache.accesstoken = this.accesstoken;
                         this.tokencache.key = init.gearkey;
                         this.token._ = this.tokencache;
-                        this.cache.set_item(this.token, "microgear-"+init.gearkey+".cache");
+                        this.cache.set_item(this.token, "microgear-" + init.gearkey + ".cache");
                     }
                 }
                 else
@@ -498,6 +508,40 @@ namespace io.netpie.microgear
                 return Convert.ToBase64String(hashmessage).Trim();
             }
         }
+
+        public void writeFeed(String feedid, String data)
+        {
+            String feedTopic = "/@writefeed/" + feedid;
+            data = data.Replace("{", "");
+            data = data.Replace("}", "");
+            string[] datas = data.Split(',');
+            String datajson = "{";
+            foreach (string datai in datas)
+            {
+                string[] datais = datai.Split(':');
+                if (datais[0].IndexOf("\"") < 0)
+                {
+                    datajson += "\"" + datais[0] + "\":" + datais[1] + ",";
+                }
+                else
+                {
+                    datajson += datais[0] + ":" + datais[1] + ",";
+                }
+
+            }
+            datajson = datajson.Remove(datajson.Length - 1);
+            datajson += "}";
+            Publish(feedTopic, datajson);
+        }
+
+        public void writeFeed(String feedid, String data, String feedkey)
+        {
+            if (feedkey.Length != 0 && feedkey != null)
+            {
+                this.writeFeed(feedid + "/" + feedkey, data);
+            }
+        }
+
     }
 
     public class cache
