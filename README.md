@@ -147,7 +147,7 @@ argument
 
 <br/>
 
-**wrtieFeed(Feedid, Data, Apikey):** write time series data to a feed storage
+**writeFeed(Feedid, Data, Apikey):** write time series data to a feed storage
 
 arguments
 
