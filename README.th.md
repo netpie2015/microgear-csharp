@@ -140,7 +140,7 @@ argument
 
 <br/>
 
-**wrtieFeed(Feedid, Data, Apikey):** เขียนข้อมูลลง feed storage
+**writeFeed(Feedid, Data, Apikey):** เขียนข้อมูลลง feed storage
 
 arguments
 
