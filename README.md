@@ -1,17 +1,17 @@
-#Microgear-csharp
+# Microgear-csharp
 -----------
 microgear-csharp is a client library for  C#  The library is used to connect application code or hardware with the NETPIE Platform's service for developing IoT applications. For more details on the NETPIE Platform, please visit https://netpie.io . 
 
 
 
-##Installation
+## Installation
 -----------
 ```sh
 Install-Package Microgear
 ```
 
 
-##Usage Example
+## Usage Example
 -----------
 ```C#
 using System.Threading;
@@ -79,9 +79,9 @@ namespace ConsoleApplication1
 ```
 
 
-##Library Usage
+## Library Usage
 ------------
-###Microgear
+### Microgear
 ---------------
 **Connect(AppID, Key, Secret)**
 
@@ -103,9 +103,6 @@ argument
 <br/>
 
 
-
-
-
 **Chat(*gearname*, *message*):** sending a message to a specified gearname 
 
 arguments
@@ -114,10 +111,6 @@ arguments
 * *message* `string` - message to be sent.
 
 <br/>
-
-
-
-
 
 
 **Publish(*topic*, *message*, *retain*):** In the case that the microgear want to send a message to an unspecified receiver, the developer can use the function publish to the desired topic, which all the microgears that subscribe such topic will receive a message.
@@ -131,15 +124,11 @@ arguments
 <br/>
 
 
-
-
 **Subscribe(*topic*)** microgear may be interested in some topic.  The developer can use the function subscribe() to subscribe a message belong to such topic. If the topic used to retain a message, the microgear will receive a message everytime it subscribes that topic.
 
 argument
 
 * *topic* `string` -  name of the topic to send a message to. Should start with "/". 
-
-
 
 <br/>
 
@@ -157,7 +146,7 @@ arguments
 
 <br/>
 
-###Event
+### Event
 ---------------
 An application that runs on a microgear is an event-driven type, which responses to various events with the callback function in a form of event function call:
 
