@@ -1,17 +1,17 @@
-#Microgear-csharp
+# Microgear-csharp
 -----------
 microgear-csharp คือ client library ภาษา C#  ที่ทำหน้าที่เป็นตัวกลางในการเชื่อมโยง application code หรือ hardware เข้ากับบริการของ netpie platform เพื่อการพัฒนา IOT application รายละเอียดเกี่ยวกับ netpie platform สามารถศึกษาได้จาก http://netpie.io
 
 
 
-##การติดตั้ง
+## การติดตั้ง
 -----------
 ```sh
 Install-Package Microgear
 ```
 
 
-##ตัวอย่างการเรียกใช้งาน
+## ตัวอย่างการเรียกใช้งาน
 -----------
 ```C#
 using System.Threading;
@@ -79,9 +79,9 @@ namespace ConsoleApplication1
 ```
 
 
-##การใช้งาน library
+## การใช้งาน library
 ------------
-###Microgear
+### Microgear
 ---------------
 **Connect(AppID, Key, Secret)**
 
@@ -140,7 +140,7 @@ argument
 
 <br/>
 
-**wrtieFeed(Feedid, Data, Apikey):** เขียนข้อมูลลง feed storage
+**writeFeed(Feedid, Data, Apikey):** เขียนข้อมูลลง feed storage
 
 arguments
 
@@ -153,7 +153,7 @@ arguments
 
 
 
-###Event
+### Event
 ---------------
 application ที่รันบน microgear จะมีการทำงานในแบบ event driven คือเป็นการทำงานตอบสนองต่อ event ต่างๆ ด้วยการเขียน callback function ขึ้นมารองรับในลักษณะๆดังต่อไปนี้
 

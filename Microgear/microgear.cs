@@ -431,7 +431,7 @@ namespace io.netpie.microgear
             if (init.gearalias != null)
             {
                 verifier = init.gearalias;
-                path = "?response_type=code&client_id=" + init.gearkey + "&scope=appid:" + init.appid + "%20alias:" + init.gearalias + "&state=mgrev:" + init.mgrev;
+                path = "response_type=code&client_id=" + init.gearkey + "&scope=appid:" + init.appid + "%20alias:" + init.gearalias + "&state=mgrev:" + init.mgrev;
 
             }
             else
